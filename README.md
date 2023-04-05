@@ -2,7 +2,7 @@
 
 ## Identificação
 **Componente Curricular:** Projeto Integrador <br/>
-**Semestre Letivo:* 2023.1 <br/>
+**Semestre Letivo:** 2023.1 <br/>
 **Professor Responsável pelo PI:** Kamila Amélia Sousa Gomes
 
 ## Componentes Curriculares Integralizados
