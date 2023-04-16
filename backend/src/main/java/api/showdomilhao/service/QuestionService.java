@@ -1,21 +1,17 @@
 package api.showdomilhao.service;
 
 import api.showdomilhao.dto.QuestionDTO;
-import api.showdomilhao.entity.Answer;
-import api.showdomilhao.entity.Question;
-import api.showdomilhao.entity.QuestionAnswer;
+import api.showdomilhao.entity.*;
 import api.showdomilhao.exceptionHandler.exceptions.MessageNotFoundException;
 import api.showdomilhao.repository.AnswerRepository;
 import api.showdomilhao.repository.QuestionRepository;
+import api.showdomilhao.repository.UserAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class QuestionService {
@@ -23,6 +19,8 @@ public class QuestionService {
     private QuestionRepository repository;
     @Autowired
     private AnswerRepository answerRepository;
+    @Autowired
+    private UserAccountRepository userAccountRepository;
 
     @Transactional(readOnly = true)
     public List<Question> findQuestionsByUserIdAndAccepted(Long userId, boolean accepted){
@@ -32,6 +30,11 @@ public class QuestionService {
     @Transactional(readOnly = true)
     public Optional<Question> findQuestionById(Long questionId){
         return repository.findById(questionId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Question> findQuestionsToApprovals(Long userId) {
+        return repository.findQuestionsToApprovals(userId);
     }
 
     @Transactional
@@ -54,7 +57,7 @@ public class QuestionService {
         question.setAnswers(answers);
         repository.save(question);
 
-        //criar tabela auxiliar entre usuario e pergunta para 5 usuarios fazer a validação
+        usersToValidateQuestion(question.getQuestionId(), question.getUserAccountId());
     }
 
     @Transactional
@@ -79,7 +82,7 @@ public class QuestionService {
         question.get().setAccepted(false);
         repository.save(question.get());
 
-        //criar tabela auxiliar entre usuario e pergunta para 5 usuarios fazer a validação
+        usersToValidateQuestion(question.get().getQuestionId(), question.get().getUserAccountId());
     }
 
     @Transactional
@@ -99,18 +102,74 @@ public class QuestionService {
                     throw new MessageNotFoundException("Pergunta não encontrada na base");
                 }));
 
-        int reports = question.get().getAmountComplaints()+1;
+        int reports = question.get().getAmountComplaints() + 1;
 
         if (reports < 2)
             question.get().setAmountComplaints(reports);
         else{
             question.get().setAmountApprovals(0);
+            question.get().setAmountFailures(0);
             question.get().setAmountComplaints(0);
             question.get().setAccepted(false);
 
-            //ser enviada para 5 usuarios revisar
+            usersToValidateQuestion(question.get().getQuestionId(), question.get().getUserAccountId());
         }
 
         repository.save(question.get());
+    }
+
+    @Transactional
+    public void approveQuestion(Long questionId, Long userId, boolean approve){
+        Optional<Question> question = Optional.ofNullable(repository.findById(questionId)
+                .orElseThrow(() -> {
+                    throw new MessageNotFoundException("Pergunta não encontrada na base");
+                }));
+
+        int approvals = 0;
+        int failures = 0;
+
+        if (approve)
+            approvals = question.get().getAmountApprovals() + 1;
+        else
+            failures = question.get().getAmountFailures() + 1;
+
+        int amountAnswers = Math.abs(question.get().getAmountApprovals() - question.get().getAmountFailures());
+
+        if (amountAnswers < 5){
+            if (approve)
+                question.get().setAmountApprovals(approvals);
+            else
+                question.get().setAmountFailures(failures);
+        }
+        else{
+            if (question.get().getAmountApprovals() == 5) {
+                question.get().setAmountApprovals(approvals);
+                question.get().setAccepted(true);
+            }
+        }
+
+        Optional<UserAccount> user = userAccountRepository.findById(userId);
+        user.get().getValidationQuestions().stream().filter(q -> Objects.equals(q.getQuestionId(), question.get().getQuestionId())).forEach(q -> {
+            user.get().getValidationQuestions().remove(q);
+            userAccountRepository.save(user.get());
+        });
+
+        repository.save(question.get());
+    }
+
+    @Transactional
+    private void usersToValidateQuestion(Long questionId, Long userId){
+        List<UserAccount> users = userAccountRepository.findUsersByQuestionId(questionId);
+        users.forEach(x -> {
+            x.getValidationQuestions().stream().filter(q -> Objects.equals(q.getQuestionId(), questionId)).forEach(q -> {
+                x.getValidationQuestions().remove(q);
+            });
+            userAccountRepository.save(x);
+        });
+        users = userAccountRepository.findUsersToValidateQuestion(userId);
+        users.forEach(x -> {
+            x.getValidationQuestions().add(new ValidationQuestionUser(questionId));
+            userAccountRepository.save(x);
+        });
     }
 }

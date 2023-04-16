@@ -39,6 +39,17 @@ public class QuestionController {
         }
     }
 
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    private ResponseEntity<List<Question>> findQuestionsToApprovals(@PathVariable Long userId) throws Exception{
+        try {
+            List<Question> questions = service.findQuestionsToApprovals(userId);
+            return new ResponseEntity<>(questions, HttpStatus.OK);
+        }catch (Exception ex){
+            throw new Exception(ex);
+        }
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     private ResponseEntity addQuestion(@RequestParam QuestionDTO question) throws Exception{
@@ -55,6 +66,22 @@ public class QuestionController {
     private ResponseEntity updateQuestion(@RequestParam QuestionDTO question) throws Exception{
         try {
             service.updateQuestion(question);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }catch (Exception ex){
+            throw new Exception(ex);
+        }
+    }
+
+    @PutMapping("/{questionId}")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    private ResponseEntity updateQuestion(@PathVariable Long questionId, @RequestParam boolean isReport,
+                                          @RequestParam Long userId, @RequestParam boolean approve) throws Exception{
+        try {
+            if (isReport)
+                service.reportQuestion(questionId);
+            else
+                service.approveQuestion(questionId, userId, approve);
+
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }catch (Exception ex){
             throw new Exception(ex);

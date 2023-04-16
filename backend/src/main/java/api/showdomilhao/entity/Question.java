@@ -19,6 +19,7 @@ public class Question {
     private String statement;
     private boolean accepted;
     private int amountApprovals;
+    private int amountFailures;
     private int amountComplaints;
     private LocalDateTime deletionDate;
 
