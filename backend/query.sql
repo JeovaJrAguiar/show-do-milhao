@@ -30,6 +30,7 @@ CREATE TABLE question (
     accepted bit NOT NULL,
 	amount_approvals TINYINT NOT NULL,
 	amount_complaints TINYINT NOT NULL,
+	amountFailures TINYINT NOT NULL,
     deletion_date DATE NULL
 ) ENGINE = innodb;
 

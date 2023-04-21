@@ -49,7 +49,7 @@ public class QuestionService {
             answer.setDescription(x.getDescription());
             answer.setCorrect(x.isCorrect());
             answerRepository.save(answer);
-            answers.add(new QuestionAnswer(x.getAnswerId()));
+            answers.add(new QuestionAnswer(answer.getAnswerId()));
         });
 
         Question question = new Question();
@@ -57,6 +57,7 @@ public class QuestionService {
         question.setStatement(newQuestion.getStatement());
         question.setAmountApprovals(0);
         question.setAmountComplaints(0);
+        question.setAmountFailures(0);
         question.setAccepted(false);
         question.setAnswers(answers);
         repository.save(question);
@@ -125,9 +126,9 @@ public class QuestionService {
 
     @Transactional
     public void approveQuestion(Long questionId, Long userId, boolean approve){
-        Optional<Question> question = Optional.ofNullable(repository.findById(questionId)
+        Optional<Question> question = Optional.ofNullable(repository.findByIdAndUserId(questionId, userId)
                 .orElseThrow(() -> {
-                    throw new MessageNotFoundException("Pergunta não encontrada na base");
+                    throw new MessageNotFoundException("Pergunta não esta na lista de perguntas para aprovações desse usuário");
                 }));
 
         int approvals = 0;
@@ -146,11 +147,10 @@ public class QuestionService {
             else
                 question.get().setAmountFailures(failures);
         }
-        else{
-            if (question.get().getAmountApprovals() == 5) {
-                question.get().setAmountApprovals(approvals);
-                question.get().setAccepted(true);
-            }
+
+        if (question.get().getAmountApprovals() == 5) {
+            question.get().setAmountApprovals(approvals);
+            question.get().setAccepted(true);
         }
 
         Optional<UserAccount> user = userAccountRepository.findById(userId);

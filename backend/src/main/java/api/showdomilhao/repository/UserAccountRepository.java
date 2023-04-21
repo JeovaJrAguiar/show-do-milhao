@@ -23,6 +23,6 @@ public interface UserAccountRepository extends CrudRepository<UserAccount, Long>
     List<UserAccount> findUsersByQuestionId(Long questionId);
 
     @Query("SELECT * FROM user_account WHERE user_account_id != :id " +
-            "AND deletion_date IS NULL LIMIT 5 ORDER BY RAND()")
+            "AND deletion_date IS NULL ORDER BY RAND() LIMIT 5")
     List<UserAccount> findUsersToValidateQuestion(Long id);
 }

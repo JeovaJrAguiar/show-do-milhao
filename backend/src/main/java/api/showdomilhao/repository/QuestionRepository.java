@@ -14,8 +14,13 @@ public interface QuestionRepository extends CrudRepository<Question, Long> {
     @Query("SELECT * FROM question WHERE question_id = :questionId AND deletion_date IS NULL")
     Optional<Question> findById(Long questionId);
 
+    @Query("SELECT q.* FROM question AS q " +
+            "INNER JOIN validation_question_user AS vqu ON q.question_id = vqu.question_id " +
+            "WHERE q.question_id = :questionId AND q.deletion_date IS NULL AND vqu.user_account_id = :userId")
+    Optional<Question> findByIdAndUserId(Long questionId, Long userId);
+
     @Query("SELECT * FROM question WHERE user_account_id = :userId " +
-            "AND accepted = :accepted")
+            "AND accepted = :accepted AND deletion_date IS NULL")
     List<Question> findQuestionsByUserIdAndAccepted(Long userId, boolean accepted);
 
     @Query("SELECT q.* FROM question AS q " +

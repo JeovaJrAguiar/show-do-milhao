@@ -9,8 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/question")
@@ -20,7 +19,7 @@ public class QuestionController {
 
     @GetMapping("/{questionId}")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    private ResponseEntity<Optional<Question>> findById(@PathVariable Long questionId) throws Exception{
+    public ResponseEntity<Optional<Question>> findById(@PathVariable Long questionId) throws Exception{
         try {
             Optional<Question> question = service.findQuestionById(questionId);
             return new ResponseEntity<>(question, HttpStatus.OK);
@@ -31,7 +30,7 @@ public class QuestionController {
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    private ResponseEntity<List<Question>> findQuestionsByUserIdAndAccepted(@RequestParam Long userId, @RequestParam boolean accepted) throws Exception{
+    public ResponseEntity<List<Question>> findQuestionsByUserIdAndAccepted(@RequestParam Long userId, @RequestParam boolean accepted) throws Exception{
         try {
             List<Question> questions = service.findQuestionsByUserIdAndAccepted(userId, accepted);
             return new ResponseEntity<>(questions, HttpStatus.OK);
@@ -42,7 +41,7 @@ public class QuestionController {
 
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    private ResponseEntity<List<Question>> findQuestionsToApprovals(@PathVariable Long userId) throws Exception{
+    public ResponseEntity<List<Question>> findQuestionsToApprovals(@PathVariable Long userId) throws Exception{
         try {
             List<Question> questions = service.findQuestionsToApprovals(userId);
             return new ResponseEntity<>(questions, HttpStatus.OK);
@@ -53,7 +52,7 @@ public class QuestionController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    private ResponseEntity addQuestion(@RequestBody QuestionDTO question) throws Exception{
+    public ResponseEntity addQuestion(@RequestBody QuestionDTO question) throws Exception{
         try {
               service.addQuestion(question);
               return new ResponseEntity<>(HttpStatus.CREATED);
@@ -64,7 +63,7 @@ public class QuestionController {
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    private ResponseEntity updateQuestion(@RequestBody QuestionDTO question) throws Exception{
+    public ResponseEntity updateQuestion(@RequestBody QuestionDTO question) throws Exception{
         try {
             service.updateQuestion(question);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -75,7 +74,7 @@ public class QuestionController {
 
     @PutMapping("/{questionId}")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    private ResponseEntity updateQuestion(@PathVariable Long questionId, @RequestParam boolean isReport,
+    public ResponseEntity updateQuestion(@PathVariable Long questionId, @RequestParam boolean isReport,
                                           @RequestParam Long userId, @RequestParam boolean approve) throws Exception{
         try {
             if (isReport)
@@ -91,7 +90,7 @@ public class QuestionController {
 
     @DeleteMapping("/{questionId}")
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    private ResponseEntity deleteQuestion(@PathVariable Long questionId) throws Exception{
+    public ResponseEntity deleteQuestion(@PathVariable Long questionId) throws Exception{
         try {
             service.deleteQuestion(questionId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
