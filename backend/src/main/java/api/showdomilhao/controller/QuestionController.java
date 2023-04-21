@@ -9,7 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/question")
@@ -52,7 +53,7 @@ public class QuestionController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    private ResponseEntity addQuestion(@RequestParam QuestionDTO question) throws Exception{
+    private ResponseEntity addQuestion(@RequestBody QuestionDTO question) throws Exception{
         try {
               service.addQuestion(question);
               return new ResponseEntity<>(HttpStatus.CREATED);
@@ -63,7 +64,7 @@ public class QuestionController {
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
-    private ResponseEntity updateQuestion(@RequestParam QuestionDTO question) throws Exception{
+    private ResponseEntity updateQuestion(@RequestBody QuestionDTO question) throws Exception{
         try {
             service.updateQuestion(question);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

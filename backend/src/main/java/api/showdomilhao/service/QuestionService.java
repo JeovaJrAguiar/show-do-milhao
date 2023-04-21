@@ -2,6 +2,7 @@ package api.showdomilhao.service;
 
 import api.showdomilhao.dto.QuestionDTO;
 import api.showdomilhao.entity.*;
+import api.showdomilhao.exceptionHandler.exceptions.MessageBadRequestException;
 import api.showdomilhao.exceptionHandler.exceptions.MessageNotFoundException;
 import api.showdomilhao.repository.AnswerRepository;
 import api.showdomilhao.repository.QuestionRepository;
@@ -39,6 +40,9 @@ public class QuestionService {
 
     @Transactional
     public void addQuestion(QuestionDTO newQuestion) {
+        if (newQuestion.getAnswers().size() != 4)
+            throw new MessageBadRequestException("A pergunta deve conter 4 respostas");
+
         Set<QuestionAnswer> answers = new HashSet<>();
         newQuestion.getAnswers().forEach(x -> {
             Answer answer = new Answer();
@@ -78,6 +82,7 @@ public class QuestionService {
                 }));
         question.get().setStatement(newQuestion.getStatement());
         question.get().setAmountApprovals(0);
+        question.get().setAmountFailures(0);
         question.get().setAmountComplaints(0);
         question.get().setAccepted(false);
         repository.save(question.get());

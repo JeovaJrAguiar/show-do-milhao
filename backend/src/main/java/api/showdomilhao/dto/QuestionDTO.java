@@ -14,7 +14,6 @@ public class QuestionDTO {
     private Long questionId;
     private Long userAccountId;
     private String statement;
-    private boolean accepted;
     private Set<Answer> answers = new HashSet<>();
 
     public QuestionDTO(){}
