@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface AnswerRepository extends CrudRepository<Answer, Long> {
-    @Query("SELECT * FROM answer WHERE question_id = :questionId ORDER BY RAND()")
+    @Query("SELECT * FROM tb_answer WHERE question_id = :questionId ORDER BY RAND()")
     List<Answer> findAnswersByQuestionId(Long questionId);
 }

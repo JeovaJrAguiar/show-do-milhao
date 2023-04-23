@@ -34,7 +34,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) {
         web.ignoring()
                 .antMatchers(HttpMethod.POST, "/api/user")
-                .antMatchers(HttpMethod.OPTIONS, "/oauth/token");
+                .antMatchers(HttpMethod.OPTIONS, "/oauth/token")
+                .antMatchers("/v3/api-docs/**")
+                .antMatchers("/swagger-ui/**")
+                .antMatchers("/swagger-ui.html");
     }
 
     @Override

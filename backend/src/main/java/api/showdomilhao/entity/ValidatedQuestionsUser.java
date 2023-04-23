@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("tb_question_answer")
+@Table("tb_validated_questions_user")
 @Getter
 @Setter
 @AllArgsConstructor
-public class QuestionAnswer {
-    private Long answerId;
+public class ValidatedQuestionsUser {
+    private Long questionId;
 }

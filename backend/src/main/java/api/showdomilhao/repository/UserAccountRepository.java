@@ -9,20 +9,20 @@ import java.util.*;
 
 @Repository
 public interface UserAccountRepository extends CrudRepository<UserAccount, Long> {
-    @Query("SELECT * FROM user_account WHERE nickname = :nickname " +
+    @Query("SELECT * FROM tb_user_account WHERE nickname = :nickname " +
             "AND deletion_date IS NULL")
     Optional<UserAccount> findUserByNickname(String nickname);
 
-    @Query("SELECT * FROM user_account WHERE user_account_id = :id " +
+    @Query("SELECT * FROM tb_user_account WHERE user_account_id = :id " +
             "AND deletion_date IS NULL")
     Optional<UserAccount> findById(Long id);
 
-    @Query("SELECT ua.* FROM user_account AS ua " +
-            "INNER JOIN validation_question_user AS vqu ON ua.user_account_id = vqu.user_account_id " +
+    @Query("SELECT ua.* FROM tb_user_account AS ua " +
+            "INNER JOIN tb_validation_question_user AS vqu ON ua.user_account_id = vqu.user_account_id " +
             "WHERE vqu.question_id = :questionId AND ua.deletion_date IS NULL")
     List<UserAccount> findUsersByQuestionId(Long questionId);
 
-    @Query("SELECT * FROM user_account WHERE user_account_id != :id " +
+    @Query("SELECT * FROM tb_user_account WHERE user_account_id != :id " +
             "AND deletion_date IS NULL ORDER BY RAND() LIMIT 5")
     List<UserAccount> findUsersToValidateQuestion(Long id);
 }

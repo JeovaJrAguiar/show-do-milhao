@@ -5,10 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("tb_question_answer")
+@Table("tb_match_question")
 @Getter
 @Setter
 @AllArgsConstructor
-public class QuestionAnswer {
-    private Long answerId;
+public class MatchQuestion {
+    private Long questionId;
+    private int position;
 }
