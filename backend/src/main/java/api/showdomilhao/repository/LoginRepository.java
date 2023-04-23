@@ -10,9 +10,9 @@ import java.util.Optional;
 @Repository
 public interface LoginRepository extends CrudRepository<Login, Long> {
 
-    @Query("SELECT * FROM login WHERE nickname = :nickname AND deletion_date IS NULL")
+    @Query("SELECT * FROM tb_login WHERE nickname = :nickname AND deletion_date IS NULL")
     Optional<Login> findByNickname(String nickname);
 
-    @Query("SELECT * FROM login WHERE login_id = :id AND deletion_date IS NULL")
+    @Query("SELECT * FROM tb_login WHERE login_id = :id AND deletion_date IS NULL")
     Optional<Login> findById(Long id);
 }

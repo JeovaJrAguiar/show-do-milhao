@@ -43,6 +43,10 @@ public class QuestionService {
         if (newQuestion.getAnswers().size() != 4)
             throw new MessageBadRequestException("A pergunta deve conter 4 respostas");
 
+        Optional<UserAccount> userAccount = Optional.ofNullable(userAccountRepository.findById(newQuestion.getUserAccountId()).orElseThrow(() -> {
+            throw new MessageNotFoundException("Usuário não encontrado");
+        }));
+
         Set<QuestionAnswer> answers = new HashSet<>();
         newQuestion.getAnswers().forEach(x -> {
             Answer answer = new Answer();
@@ -53,7 +57,7 @@ public class QuestionService {
         });
 
         Question question = new Question();
-        question.setUserAccountId(newQuestion.getUserAccountId());
+        question.setUserAccountId(userAccount.get().getUserAccountId());
         question.setStatement(newQuestion.getStatement());
         question.setAmountApprovals(0);
         question.setAmountComplaints(0);
@@ -70,7 +74,7 @@ public class QuestionService {
         newQuestion.getAnswers().forEach(x -> {
             Optional<Answer> answer = Optional.ofNullable(answerRepository.findById(x.getAnswerId())
                     .orElseThrow(() -> {
-                        throw new MessageNotFoundException("Res,posta da pergunta não encontrada na base");
+                        throw new MessageNotFoundException("Resposta da pergunta não encontrada na base");
                     }));
             answer.get().setDescription(x.getDescription());
             answer.get().setCorrect(x.isCorrect());
@@ -153,12 +157,20 @@ public class QuestionService {
             question.get().setAccepted(true);
         }
 
-        Optional<UserAccount> user = userAccountRepository.findById(userId);
-        user.get().getValidationQuestions().stream().filter(q -> Objects.equals(q.getQuestionId(), question.get().getQuestionId())).forEach(q -> {
-            user.get().getValidationQuestions().remove(q);
-            userAccountRepository.save(user.get());
-        });
+        Optional<UserAccount> user = Optional.ofNullable(userAccountRepository.findById(userId).orElseThrow(() -> {
+            throw new MessageNotFoundException("Usuário não encontrado");
+        }));
 
+        user.get().getValidatedQuestions().add(new ValidatedQuestionsUser(question.get().getQuestionId()));
+
+        for (ValidationQuestionUser q : user.get().getValidationQuestions()) {
+            if (q.getQuestionId().equals(question.get().getQuestionId())) {
+                user.get().getValidationQuestions().remove(q);
+                break;
+            }
+        }
+
+        userAccountRepository.save(user.get());
         repository.save(question.get());
     }
 
