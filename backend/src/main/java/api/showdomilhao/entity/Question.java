@@ -11,16 +11,20 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class UserAccount {
+public class Question {
 
     @Id
+    private Long questionId;
     private Long userAccountId;
-    private String nickname;
-    private String name;
-    private String avatar;
+    private String statement;
+    private boolean accepted;
+    private int amountApprovals;
+    private int amountFailures;
+    private int amountComplaints;
     private LocalDateTime deletionDate;
-    @MappedCollection(idColumn = "user_account_id")
-    private Set<ValidationQuestionUser> validationQuestions = new HashSet<>();
 
-    public UserAccount(){}
+    @MappedCollection(idColumn = "question_id")
+    private Set<QuestionAnswer> answers = new HashSet<>();
+
+    public Question(){}
 }
