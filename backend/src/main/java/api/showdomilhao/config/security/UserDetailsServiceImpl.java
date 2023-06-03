@@ -1,4 +1,4 @@
-package api.showdomilhao.security;
+package api.showdomilhao.config.security;
 
 import api.showdomilhao.entity.Login;
 import api.showdomilhao.exceptionHandler.exceptions.MessageNotFoundException;

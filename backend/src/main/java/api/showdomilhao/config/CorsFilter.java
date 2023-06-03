@@ -1,4 +1,4 @@
-package api.showdomilhao.security.config;
+package api.showdomilhao.config;
 
 import java.io.IOException;
 
