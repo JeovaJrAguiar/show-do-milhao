@@ -1,5 +1,6 @@
 package api.showdomilhao.controller;
 
+import api.showdomilhao.dto.HallDaFamaDTO;
 import api.showdomilhao.dto.UserAccountDTO;
 import api.showdomilhao.entity.UserAccount;
 import api.showdomilhao.exceptionHandler.MessageExceptionHandler;
@@ -18,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.List;
 
 @Tag(name = "Usuário")
 @RestController
@@ -89,6 +91,24 @@ public class UserAccountController {
         try {
             service.deleteUserById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
+    @Operation(summary = "Retorna os 10 melhores usuários")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Buscou o Hall da Fama", content =
+            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserAccount.class)))),
+            @ApiResponse(responseCode = "404", description = "Hall da Fama vazio", content =
+            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MessageExceptionHandler.class))))
+    })
+    @GetMapping("/hall-da-fama")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<List<HallDaFamaDTO>> getHalldaFama() throws Exception{
+        try {
+            List<HallDaFamaDTO> hallDaFama = service.getHalldaFama();
+            return new ResponseEntity<>(hallDaFama, HttpStatus.OK);
         }catch (Exception e){
             throw new Exception(e);
         }
