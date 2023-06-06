@@ -9,7 +9,6 @@ public class ShowDoMilhaoApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ShowDoMilhaoApplication.class, args);
-		//System.out.println(new BCryptPasswordEncoder().encode("soares"));
 	}
 
 }

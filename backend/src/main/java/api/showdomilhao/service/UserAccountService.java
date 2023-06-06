@@ -1,5 +1,6 @@
 package api.showdomilhao.service;
 
+import api.showdomilhao.dto.HallDaFamaDTO;
 import api.showdomilhao.dto.UserAccountDTO;
 import api.showdomilhao.entity.Login;
 import api.showdomilhao.entity.Role;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -103,5 +105,10 @@ public class UserAccountService {
 
         repository.save(userAccount.get());
         loginRepository.save(login.get());
+    }
+
+    @Transactional(readOnly = true)
+    public List<HallDaFamaDTO> getHalldaFama() {
+        return repository.findHallDaFama();
     }
 }
