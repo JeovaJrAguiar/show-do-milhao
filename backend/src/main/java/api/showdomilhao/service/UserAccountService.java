@@ -11,18 +11,27 @@ import api.showdomilhao.repository.LoginRepository;
 import api.showdomilhao.repository.RoleRepository;
 import api.showdomilhao.repository.UserAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UserAccountService {
+    @Value("${directory.root}")
+    private String rootDirectory;
+    @Value("${directory.file}")
+    private String fileDirectory;
+
     @Autowired
     private UserAccountRepository repository;
     @Autowired
@@ -34,26 +43,28 @@ public class UserAccountService {
 
     @Transactional(readOnly = true)
     public Optional<UserAccount> findById(Long id){
-        return Optional.ofNullable(repository.findById(id).orElseThrow(() -> {
-            throw new MessageNotFoundException("Usuário não encontrado");
-        }));
+        return Optional.ofNullable(repository.findById(id).orElseThrow(() -> new MessageNotFoundException("Usuário não encontrado")));
     }
 
     @Transactional
-    public void addUserAccount(UserAccountDTO newUserAccount) {
-        Optional<UserAccount> userAccount = repository.findUserByNickname(newUserAccount.getNickname());
+    public void addUserAccount(String name, String nickname, String password, MultipartFile avatar) {
+        Optional<UserAccount> userAccount = repository.findUserByNickname(nickname);
         if (userAccount.isPresent())
             throw new MessageBadRequestException("Usuário já existe");
 
         userAccount = Optional.of(new UserAccount());
-        userAccount.get().setName(newUserAccount.getName());
-        userAccount.get().setNickname(newUserAccount.getNickname());
+
+        if (avatar != null)
+            userAccount.get().setAvatar(saveFile(avatar));
+
+        userAccount.get().setName(name);
+        userAccount.get().setNickname(nickname);
         repository.save(userAccount.get());
 
         Login login = new Login();
         login.setUserAccountId(userAccount.get().getUserAccountId());
         login.setNickname(userAccount.get().getNickname());
-        login.setPassword(passwordEncoder.encode(newUserAccount.getPassword()));
+        login.setPassword(passwordEncoder.encode(password));
         loginRepository.save(login);
 
         Role role = new Role();
@@ -111,4 +122,41 @@ public class UserAccountService {
     public List<HallDaFamaDTO> getHalldaFama() {
         return repository.findHallDaFama();
     }
+
+    private String saveFile(MultipartFile file){
+        String ramdom = String.valueOf(UUID.randomUUID());
+
+        Path directoryPath = Paths.get(this.rootDirectory, this.fileDirectory);
+        Path filePath = directoryPath.resolve(ramdom + "." + extractExtencion(Objects.requireNonNull(file.getOriginalFilename())));
+
+        try {
+            Files.createDirectories(directoryPath);
+            file.transferTo(filePath.toFile());
+
+            URI uri = filePath.toUri().resolve("http://localhost:8080/api/user/avatar/"+ramdom + "." + extractExtencion(file.getOriginalFilename()));
+
+            return uri.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Problemas na tentativa de salvar o arquivo");
+        }
+    }
+
+    private String extractExtencion(String fileName){
+        int i = fileName.lastIndexOf(".");
+        return fileName.substring(i + 1);
+    }
+
+//    public byte[] getAvatar(String name) throws IOException {
+//        File file = new File(Objects.requireNonNull(UserAccountService.class.getClassLoader().getResource("arquivos/" + name)).getFile());
+//
+//        return readFile(file);
+//    }
+//
+//    private byte[] readFile(File path) throws IOException {
+//        try {
+//            return Files.readAllBytes(Paths.get(path.getPath()));
+//        }catch (IOException e){
+//            throw new RuntimeException("Erro ao ler arquivo");
+//        }
+//    }
 }

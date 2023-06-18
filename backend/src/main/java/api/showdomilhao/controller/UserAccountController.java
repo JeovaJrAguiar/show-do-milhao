@@ -13,11 +13,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.List;
 
@@ -53,9 +58,9 @@ public class UserAccountController {
             @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MessageExceptionHandler.class))))
     })
     @PostMapping
-    public ResponseEntity addUser(@RequestBody UserAccountDTO newUser) throws Exception{
+    public ResponseEntity addUser(@RequestParam String name, @RequestParam String nickname, @RequestParam String password, @RequestParam MultipartFile avatar) throws Exception{
         try {
-            service.addUserAccount(newUser);
+            service.addUserAccount(name, nickname, password, avatar);
             return new ResponseEntity<>(HttpStatus.CREATED);
         }catch (Exception e){
             throw new Exception(e);
@@ -113,4 +118,33 @@ public class UserAccountController {
             throw new Exception(e);
         }
     }
+
+    @Operation(summary = "Buscar foto do usuário")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Buscou o arquivo com sucesso", content =
+            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserAccount.class)))),
+            @ApiResponse(responseCode = "500", description = "Erro ao ler o arquivo", content = { @Content })
+    })
+    @GetMapping("/avatar/{name}")
+    public ResponseEntity getAvatar(@PathVariable String name) throws Exception{
+        try {
+            File file = new File(Objects.requireNonNull(UserAccountService.class.getClassLoader().getResource("arquivos/" + name)).getFile());
+            return ResponseEntity.ok()
+                    .contentLength(file.length())
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(new InputStreamResource(Objects.requireNonNull(UserAccountService.class.getClassLoader().getResourceAsStream("arquivos/" + name))));
+        }catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
+//    @GetMapping("/avatar/{name}")
+//    public ResponseEntity<byte[]> getAvatar(@PathVariable String name) throws Exception{
+//        try {
+//            byte[] file = service.getAvatar(name);
+//            return new ResponseEntity<>(file, HttpStatus.OK);
+//        }catch (Exception e){
+//            throw new Exception(e);
+//        }
+//    }
 }

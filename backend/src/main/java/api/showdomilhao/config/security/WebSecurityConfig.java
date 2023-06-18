@@ -23,6 +23,7 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeHttpRequests()
                 .antMatchers(HttpMethod.POST, "/api/user").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/user/avatar/**").permitAll()
                 .antMatchers("/v3/api-docs/**").permitAll()
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/swagger-ui.html").permitAll()
