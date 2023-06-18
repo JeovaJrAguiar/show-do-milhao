@@ -33,6 +33,23 @@ public class UserAccountController {
     @Autowired
     private UserAccountService service;
 
+    @Operation(summary = "Buscar usuário pelo nickname e senha")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Buscou usuário", content =
+            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = UserAccount.class)))),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content =
+            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MessageExceptionHandler.class))))
+    })
+    @GetMapping("/login")
+    public ResponseEntity<Optional<UserAccount>> getUserByNicknameAndPassword(@RequestParam String nickname, @RequestParam String password) throws Exception{
+        try {
+            Optional<UserAccount> user = service.findByNickNameAndPassword(nickname, password);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        }catch (Exception e){
+            throw new Exception(e);
+        }
+    }
+
     @Operation(summary = "Buscar usuário pelo ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Buscou usuário", content =

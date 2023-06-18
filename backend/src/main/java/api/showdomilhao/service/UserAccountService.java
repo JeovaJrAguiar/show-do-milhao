@@ -12,6 +12,7 @@ import api.showdomilhao.repository.RoleRepository;
 import api.showdomilhao.repository.UserAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,16 @@ public class UserAccountService {
     private RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Transactional(readOnly = true)
+    public Optional<UserAccount> findByNickNameAndPassword(String nickname, String password) {
+        Optional<UserAccount> user = Optional.ofNullable(repository.findUserByNickname(nickname).orElseThrow(() -> new MessageNotFoundException("Usuário não encontrado")));
+        Optional<Login> login = loginRepository.findByNickname(nickname);
+        if (new BCryptPasswordEncoder().matches(password, login.get().getPassword()))
+            return user;
+        else
+            throw new MessageNotFoundException("Usuário não encontrado");
+    }
 
     @Transactional(readOnly = true)
     public Optional<UserAccount> findById(Long id){
