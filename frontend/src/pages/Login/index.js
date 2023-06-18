@@ -6,14 +6,14 @@ import history from '../../history';
 
 export default function Login() {
   const { handleLogin } = useContext(Context);
-  const [nickname, setNickname] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [valid, setValid] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = {
-      nickname,
+      username,
       password,
     };
     try {
@@ -57,8 +57,8 @@ export default function Login() {
           }>Nickname</label>
 
           <input 
-          type='text' value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
+          type='text' value={username}
+          onChange={(e) => setUsername(e.target.value)}
           style= {
             {
               width: '100%',
