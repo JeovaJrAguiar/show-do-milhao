@@ -17,6 +17,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -75,7 +76,7 @@ public class UserAccountController {
             @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = MessageExceptionHandler.class))))
     })
     @PostMapping
-    public ResponseEntity addUser(@RequestParam String name, @RequestParam String nickname, @RequestParam String password, @RequestParam MultipartFile avatar) throws Exception{
+    public ResponseEntity addUser(@RequestParam String name, @RequestParam String nickname, @RequestParam String password, @RequestParam @Nullable MultipartFile avatar) throws Exception{
         try {
             service.addUserAccount(name, nickname, password, avatar);
             return new ResponseEntity<>(HttpStatus.CREATED);

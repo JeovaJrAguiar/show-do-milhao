@@ -11,7 +11,7 @@ export default function LayoutMain(){
     const id = JSON.parse(localStorage.getItem('id'))
     console.log(id)
     if(id !== null){
-      const {data} = await api.get(`/api/user/${Number(id)}`)
+      const {data} = await api.get(`/users/${Number(id)}`)
       setUser(data)
     }
   }

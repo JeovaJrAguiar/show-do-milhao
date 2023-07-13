@@ -3,5 +3,5 @@ import axios from 'axios';
 // define o endpoint da API
 
 export default axios.create({
-  baseURL: 'http://localhost:5555/api',
+  baseURL: 'http://localhost:8080/api',
 });

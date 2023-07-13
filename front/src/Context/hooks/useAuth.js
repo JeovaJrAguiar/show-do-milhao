@@ -21,32 +21,13 @@ export default function useAuth() {
   }, []);
   
   async function handleLogin(dataLogin) {
-      console.log(dataLogin)
-
-      const data = {
-        username: 'aguiar',
-        password: 'aguiar',
-        grant_type: 'password'
-      }
-
-      console.log(data)
-      const { data: { access_token, user_id } } = await api.post('/oauth/token', {
-        data: data,
-        headers: { "Content-type": "multipart/form-data" }
-      }, {
-        auth: {
-          username: 'ShowDoMilhao',
-          password: 'drhhdrbDRFGHSvds4235!@##$'
-        }
-      });
-
-      api.defaults.headers.Authorization = `${access_token}`;
-
-      localStorage.setItem('id', JSON.stringify(user_id));
-      localStorage.setItem('token', JSON.stringify(access_token));
-      setAuthenticated(true);
-
-      history.push('/');
+    const { data: { accessToken, id } } = await api.post('/users/login', dataLogin)
+    api.defaults.headers.Authorization = `${accessToken}`;
+    localStorage.setItem('id', JSON.stringify(id));
+    localStorage.setItem('token', JSON.stringify(accessToken));
+    setAuthenticated(true);
+    history.push('/');
+    
   }
   async function handleSignUp(dataSignUp) {
     try {
